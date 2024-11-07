@@ -33,7 +33,7 @@ public class CustomerActions implements UserActions {
         }
     }
 
-    private static void createOrder(Scanner scanner, Document doc, NodeList dishes) throws Exception {
+    public static void createOrder(Scanner scanner, Document doc, NodeList dishes) throws Exception {
         System.out.println("Доступные блюда:");
         for (int i = 0; i < dishes.getLength(); i++) {
             Element dish = (Element) dishes.item(i);

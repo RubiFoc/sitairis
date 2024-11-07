@@ -4,6 +4,7 @@
         <account id="2" isBlocked="false" login="courier1" password="courierpass" role="courier"/>
         <account id="3" isBlocked="false" login="worker1" password="workerpass" role="kitchen_worker"/>
         <account id="4" isBlocked="false" login="user1" password="userpass" role="customer"/>
+        <account id="5" isBlocked="false" login="testUser" password="userpass" role="customer"/>
     </accounts>
     <dishes>
         <dish id="1" name="Pizza" price="8.99"/>

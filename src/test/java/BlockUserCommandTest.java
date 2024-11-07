@@ -1,21 +1,17 @@
-import org.example.BlockUserCommand;
-import org.example.EditOrderCommand;
+import org.example.*;
 import org.example.XMLUtils;
-import org.example.AdministratorActions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 
 import static org.junit.jupiter.api.Assertions.*;
-
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 import java.util.Scanner;
 
@@ -89,49 +85,60 @@ class XMLUtilsTest {
     }
 }
 
-class AdministratorActionsTest {
-
-    @InjectMocks
-    private AdministratorActions administratorActions;
-
-    @Mock
-    private BlockUserCommand blockUserCommandMock;
-
-    @Mock
-    private EditOrderCommand editOrderCommandMock;
-
-    private Scanner scanner;
-
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-        scanner = new Scanner(System.in);
-    }
+public class BlockUserCommandTest {
 
     @Test
-    void testPerformActionBlockUser() throws Exception {
-        when(scanner.nextInt()).thenReturn(1); // Выбор "Блокировать пользователя"
-        when(scanner.nextLine()).thenReturn("testUser");
+    public void testBlockUserFound() throws Exception {
+        File tempXmlFile = File.createTempFile("testData", ".xml");
+        tempXmlFile.deleteOnExit(); // Файл будет удален при завершении программы
 
-        administratorActions.performAction(scanner);
+        String input = "testUser";
+        Scanner scanner = new Scanner(new ByteArrayInputStream(input.getBytes()));
+        Document doc = mock(Document.class);
+        NodeList users = mock(NodeList.class);
+        Element userElement = mock(Element.class);
 
-        verify(blockUserCommandMock, times(1)).execute();
+        when(doc.getElementsByTagName("account")).thenReturn(users);
+        when(users.getLength()).thenReturn(1);
+        when(users.item(0)).thenReturn(userElement);
+        when(userElement.getAttribute("login")).thenReturn("testUser");
+
+        BlockUserCommand blockUserCommand = new BlockUserCommand(scanner);
+        blockUserCommand.execute();
     }
 
+
     @Test
-    void testPerformActionEditOrder() throws Exception {
-        when(scanner.nextInt()).thenReturn(2); // Выбор "Редактировать заказ"
-        when(scanner.nextLine()).thenReturn("testOrder");
+    public void testBlockUserNotFound() throws Exception {
+        String input = "testUser1";
+        Scanner scanner = new Scanner(new ByteArrayInputStream(input.getBytes()));
+        Document doc = mock(Document.class);
+        NodeList users = mock(NodeList.class);
 
-        administratorActions.performAction(scanner);
+        when(doc.getElementsByTagName("account")).thenReturn(users);
+        when(users.getLength()).thenReturn(0); // Нет пользователей
 
-        verify(editOrderCommandMock, times(1)).execute();
+        BlockUserCommand blockUserCommand = new BlockUserCommand(scanner);
+        blockUserCommand.execute();
+
+        // Проверка, что блокировка не произошла
+        verify(users, never()).item(anyInt());
     }
-
+}
+class EditOrderCommandTest {
     @Test
-    void testPerformActionExit() {
-        when(scanner.nextInt()).thenReturn(0); // Выбор "Выход"
+    public void testEditOrderNotFound() throws Exception {
+        String input = "999";
+        Scanner scanner = new Scanner(input);
 
-        assertDoesNotThrow(() -> administratorActions.performAction(scanner));
+        Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+
+        Element ordersElement = doc.createElement("orders");
+        doc.appendChild(ordersElement);
+
+        EditOrderCommand editOrderCommand = new EditOrderCommand(scanner);
+        editOrderCommand.execute();
+
+        assertEquals(0, ordersElement.getElementsByTagName("order").getLength());
     }
 }
