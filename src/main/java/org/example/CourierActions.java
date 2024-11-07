@@ -13,7 +13,7 @@ public class CourierActions implements UserActions {
 
             switch (choice) {
                 case "0":
-                    System.out.println("Завершение работы курьера.");
+                    System.out.println("Завершение работы курьера!");
                     System.exit(0);
                     break;
 
